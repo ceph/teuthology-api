@@ -12,7 +12,9 @@ DEPLOYMENT = os.getenv("DEPLOYMENT")
 SESSION_SECRET_KEY = os.getenv("SESSION_SECRET_KEY")
 
 log = logging.getLogger(__name__)
-app = FastAPI()
+app = FastAPI(
+    title="Teuthology API", description="REST API for executing Teuthology commands"
+)
 
 
 @app.get("/")
