@@ -3,7 +3,7 @@ import os
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
-from routes import suite, kill, login, logout
+from routes import suite, kill, login, logout, presets
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -39,3 +39,4 @@ app.include_router(suite.router)
 app.include_router(kill.router)
 app.include_router(login.router)
 app.include_router(logout.router)
+app.include_router(presets.router)
