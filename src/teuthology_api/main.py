@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 from dotenv import load_dotenv
 
-from teuthology_api.routes import suite, kill, login, logout
+from teuthology_api.routes import suite, kill, login, logout, presets
 
 load_dotenv()
 
@@ -40,3 +40,4 @@ app.include_router(suite.router)
 app.include_router(kill.router)
 app.include_router(login.router)
 app.include_router(logout.router)
+app.include_router(presets.router)
