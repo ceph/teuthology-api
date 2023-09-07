@@ -8,3 +8,6 @@ pydantic-settings
 # Temporarily, using teuthology without monkey patching the thread
 git+https://github.com/ceph/teuthology@teuth-api#egg=teuthology[test]
 # Original: git+https://github.com/ceph/teuthology#egg=teuthology[test]
+fastapi-sqlalchemy
+alembic 
+psycopg2-binary
