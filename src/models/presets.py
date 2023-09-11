@@ -1,6 +1,5 @@
 from sqlalchemy import Column, Integer, String, UniqueConstraint
 from sqlalchemy.orm import Session
-from schemas.presets import PresetSchema
 from . import Base
 
 
@@ -21,8 +20,8 @@ class PresetsDatabaseException(Exception):
         self.code = code
 
 
-def create_preset(db: Session, preset: PresetSchema):
-    new_preset = Presets(**preset.model_dump())
+def create_preset(db: Session, preset):
+    new_preset = Presets(**preset)
     db.add(new_preset)
     db.commit()
     db.refresh(new_preset)
