@@ -29,6 +29,8 @@ A REST API to execute [teuthology commands](https://docs.ceph.com/projects/teuth
         links:
             - teuthology
             - paddles
+        healthcheck:
+          test: [ "CMD", "curl", "-f", "http://0.0.0.0:8082" ]
     ```
 5. Follow teuthology development setup instructions from [here](https://github.com/ceph/teuthology/tree/main/docs/docker-compose).
 
@@ -74,22 +76,3 @@ curl --location --request POST 'http://localhost:8082/suite?dry_run=false&logs=t
          "--user": "vallariag"
  }'
 ```
-
-## GSOC/OUTREACHY 2023
-
-This section is for GSOC/OUTREACHY 2023 applicants.
-
-### Task 1: Run Teuthology & Teuthology-API
-Install Teutholology-API by following the instructions above. Make sure to get all the containers running with healthy status and take a screen shot of all the running containers. TIP: In https://github.com/ceph/teuthology/tree/main/docs/docker-compose#readme run TEUTHOLOGY_WAIT=1 ./start.sh so you have time to take screen shots. Submit the screenshots to all your mentors through email.
-
-### Task 2: Add unit-test to suite & kill route
-Add unit-tests for 2 functions of your choice, 1 in `src/services/suite.py` and 1 in `src/services/kill.py.` You should be using `TestClient` library from fast-api, following this [doc](https://fastapi.tiangolo.com/tutorial/testing/#extended-fastapi-app-file).
-
-File a PR tagging the `gsoc-outreachy` label, please use `git commit -s` to sign your commits.
-
-### Task 3: Create a low fidelity UX/UI mockup 
-The purpose of this project is to enable Teuthology to schedule/kill jobs
-through [Pulpito](https://pulpito.ceph.com/), therefore, we need to also add a new
-widget, e.g., action bar -> form that allows you to schedule jobs, delete button on each runs/jobs. Please submit the mockup by filing a PR to this repo. This task is open-ende so feel free to use any tools (you can even hand draw it).
-
-Again, please use the `gsoc-outreachy` label and `git commit -s` to sign your commits.
