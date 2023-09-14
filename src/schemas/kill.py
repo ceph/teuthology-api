@@ -16,3 +16,20 @@ class KillArgs(BaseArgs):
     jobspec: Union[str, None] = Field(default=None, alias="--jobspec")
     machine_type: Union[str, None] = Field(default="default", alias="--machine-type")
     archive: Union[str, None] = Field(default=None, alias="--archive")
+
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "--dry-run": False,
+                    "--non-interactive": False,
+                    "--verbose": 1,
+                    "--help": False,
+                    "--user": "<sepia_username>",
+                    "--run": "<run_title>",
+                    "--job": [1, 2],
+                    "--machine-type": "smithi",
+                }
+            ]
+        }
+    }

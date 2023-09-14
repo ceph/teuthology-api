@@ -14,7 +14,9 @@ PULPITO_URL = os.getenv("PULPITO_URL")
 PADDLES_URL = os.getenv("PADDLES_URL")
 
 log = logging.getLogger(__name__)
-app = FastAPI()
+app = FastAPI(
+    title="Teuthology API", description="REST API for executing Teuthology commands"
+)
 
 
 @app.get("/")
