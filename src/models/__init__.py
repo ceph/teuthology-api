@@ -19,3 +19,4 @@ def get_db() -> Session:
 
 
 from .presets import Presets
+from .auto_suite import AutoSuite
