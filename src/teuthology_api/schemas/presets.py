@@ -2,10 +2,10 @@ from pydantic import BaseModel, Field
 from typing import Union
 
 
-class PresetSchema(BaseModel):
+class PresetsSchema(BaseModel):
     # pylint: disable=too-few-public-methods
     """
-    Class for Base Args.
+    Class for Presets Schema.
     """
     username: Union[str, None] = Field(default=None)
     name: Union[str, None] = Field(default=None)
