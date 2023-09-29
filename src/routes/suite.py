@@ -21,4 +21,10 @@ def create_run(
     logs: bool = False,
 ):
     args = args.model_dump(by_alias=True)
-    return run(args, dry_run, logs, access_token)
+    if not access_token:
+        raise HTTPException(
+            status_code=401,
+            detail="You need to be logged in",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return run(args, dry_run, logs)
