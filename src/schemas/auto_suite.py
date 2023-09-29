@@ -3,15 +3,14 @@ from pydantic import BaseModel, Field
 from .suite import SuiteArgs
 
 
-class BuildStatusWebhookArgs(BaseModel):
+class BuildStatusWebhook(BaseModel):
     # pylint: disable=too-few-public-methods
     """
-    Class for Build Status Webhook Args.
+    Class for Build Status Webhook.
     """
     status: str = Field(default="")
     distro: Union[str, None] = Field(default="")
     distro_version: Union[str, None] = Field(default="")
-    distro_arch: Union[str, None] = Field(default="")
     ref: Union[str, None] = Field(default="")
     sha1: Union[str, None] = Field(default="")
     flavor: Union[str, None] = Field(default="")

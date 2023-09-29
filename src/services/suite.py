@@ -7,17 +7,11 @@ from services.helpers import logs_run, get_run_details
 log = logging.getLogger(__name__)
 
 
-def run(args, dry_run: bool, send_logs: bool, access_token: str):
+def run(args, dry_run: bool, send_logs: bool):
     """
     Schedule a suite.
     :returns: Run details (dict) and logs (list).
     """
-    if not access_token:
-        raise HTTPException(
-            status_code=401,
-            detail="You need to be logged in",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
     try:
         args["--timestamp"] = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
         if dry_run:
