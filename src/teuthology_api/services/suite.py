@@ -1,5 +1,6 @@
 from datetime import datetime
 import logging
+import threading
 import teuthology.suite
 
 from fastapi import HTTPException
@@ -8,6 +9,26 @@ from teuthology_api.services.helpers import logs_run, get_run_details
 
 log = logging.getLogger(__name__)
 
+
+TEUTHOLOGY_SUIT_MAIN_TIMEOUT = 60 #seconds
+
+def timeout_wrapper(timeout: int, func, *args, **kwargs):
+    result = None
+
+    def worker():
+        nonlocal result
+        result = func(*args, **kwargs)
+
+    thread = threading.Thread(target=worker)
+    thread.start()
+    thread.join(timeout)
+
+    if thread.is_alive():
+        log.error("Task timed out and was canceled")
+        thread.join()  # Ensure the thread terminates completely
+        result = None
+
+    return result
 
 def run(args, dry_run: bool, send_logs: bool, access_token: str):
     """
@@ -31,7 +52,9 @@ def run(args, dry_run: bool, send_logs: bool, access_token: str):
         if send_logs:
             logs = logs_run(teuthology.suite.main, args)
         else:
-            teuthology.suite.main(args)
+            result = timeout_wrapper(TEUTHOLOGY_SUIT_MAIN_TIMEOUT, teuthology.suite.main, args)
+            if result is None:
+                raise TimeoutError("teuthology.suite.main timed out.")
 
         # get run details from paddles
         run_name = make_run_name(
