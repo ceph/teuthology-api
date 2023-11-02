@@ -5,6 +5,7 @@ trap exit TERM
 HOST=${TEUTHOLOGY_API_SERVER_HOST:-"0.0.0.0"}
 PORT=${TEUTHOLOGY_API_SERVER_PORT:-"8080"}
 
+alembic -x verbose=1 upgrade head
 
 cd /teuthology_api/src/
 
