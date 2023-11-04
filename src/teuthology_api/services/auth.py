@@ -71,7 +71,41 @@ class AuthServiceGH(AuthService):
             return response_org_dict
 
 class AuthServiceMock(AuthService):
-    pass
+    async def _get_token(self, status_code: int) -> dict:
+        if status_code == 200:
+            return "admin"
+        elif status_code == 403:
+            return "user"
+        elif status_code == 404:
+            return ""
+        elif status_code == 500:
+            raise HTTPException(
+                    status_code=401, detail="The code is incorrect or expired."
+                )
+        else:
+            return ""
+
+    async def _get_org(self, token: str) -> dict:
+        if token == "admin":
+            return {
+                "id": "admin_id",
+                "username": "admin",
+                "state": "state",
+                "role": "admin"
+            }
+        elif token == "":
+            log.error("The application doesn't have permission to view github org.")
+            raise HTTPException(
+                status_code=403,
+                detail="The application doesn't have permission to view github org.",
+            )
+        else:
+            log.error("User is not part of the Ceph Organization")
+            raise HTTPException(
+                status_code=404,
+                detail="User is not part of the Ceph Organization, please contact <admin>.",
+            )
+            
 
 def get_github_auth_service():
     return AuthServiceGH()
