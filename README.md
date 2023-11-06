@@ -46,7 +46,10 @@ A REST API to execute [teuthology commands](https://docs.ceph.com/projects/teuth
         volumes:
             - ../../../teuthology-api:/teuthology_api/:rw
     ```
-    `DEPLOYMENT: development` would run the server in `--reload` mode (server would restart when changes are made in `/src` dir) and `volumes` would mount host directory to docker's directory (local changes would reflect in docker container).
+    `DEPLOYMENT: development` would:
+    1) run the server in `--reload` mode (server would restart when changes are made in `/src` dir),
+    2) `volumes` would mount host directory to docker's directory (local changes would reflect in docker container),
+    3) start Swagger UI interactive docs at `/docs` endpoint.
 
 5. Follow teuthology development setup instructions from [here](https://github.com/ceph/teuthology/tree/main/docs/docker-compose).
 
@@ -64,7 +67,7 @@ A REST API to execute [teuthology commands](https://docs.ceph.com/projects/teuth
 
 ## Documentation
 
-The documentation can be accessed at http://localhost:8082/docs after running the application.
+The documentation can be accessed at http://localhost:8082/docs after running the application (with environment variable `DEPLOYMENT` set as `"development"`).
 
 Note: To run commands, authenticate by visiting `http://localhost:8082/login` through browser and follow the github authentication steps (this stores the auth token in browser cookies).
 

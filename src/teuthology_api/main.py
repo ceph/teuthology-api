@@ -15,7 +15,15 @@ PULPITO_URL = os.getenv("PULPITO_URL")
 PADDLES_URL = os.getenv("PADDLES_URL")
 
 log = logging.getLogger(__name__)
-app = FastAPI()
+
+
+app_config = {}
+if DEPLOYMENT == "development":
+    app_config["docs_url"] = "/docs"
+else:
+    app_config["docs_url"] = None
+
+app = FastAPI(**app_config)
 
 
 @app.get("/")
