@@ -24,5 +24,4 @@ COPY .teuthology.yaml /root
 WORKDIR /teuthology_api
 COPY . /teuthology_api/
 
-
 CMD sh /teuthology_api/start_container.sh
