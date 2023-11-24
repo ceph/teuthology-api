@@ -18,8 +18,11 @@ RUN apt-get update && \
     lsb-release && \
     apt-get clean all
 
-COPY setup.py /
+COPY setup.py .
+COPY requirements.txt .
+RUN pip3 install -r requirements.txt
 RUN pip3 install -e .
+
 COPY .teuthology.yaml /root
 WORKDIR /teuthology_api
 COPY . /teuthology_api/
