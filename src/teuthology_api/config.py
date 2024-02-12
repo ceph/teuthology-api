@@ -22,6 +22,7 @@ class APISettings(BaseSettings):
 
     session_secret_key: str = ""
     archive_dir: str = ""
+    path_to_teuthology: str = ""
 
     model_config = SettingsConfigDict(
         env_file=".env", env_file_encoding="utf-8", extra="ignore"

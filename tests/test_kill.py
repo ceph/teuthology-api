@@ -20,7 +20,6 @@ mock_kill_args = {
     "--non-interactive": False,
     "--verbose": 1,
     "--help": False,
-    "--user": "mock_user",
     "--owner": "user1",
     "--run": "mock_run",
     "--preserve-queue": None,
@@ -31,13 +30,15 @@ mock_kill_args = {
 }
 
 
-@patch("teuthology_api.services.kill.teuthology.kill.main")
+@patch("subprocess.Popen")
 @patch("teuthology_api.services.kill.get_run_details")
 @patch("teuthology_api.services.kill.get_username")
-def test_kill_run_success(m_get_username, m_get_run_details, m_teuth_kill_main):
+def test_kill_run_success(m_get_username, m_get_run_details, m_popen):
     m_get_username.return_value = "user1"
     m_get_run_details.return_value = {"id": "7451978", "user": "user1"}
-    m_teuth_kill_main.return_value = None
+    mock_process = m_popen.return_value
+    mock_process.communicate.return_value = ("logs", "")
+    mock_process.wait.return_value = 0
     response = client.post("/kill", data=json.dumps(mock_kill_args))
     assert response.status_code == 200
     assert response.json() == {"kill": "success"}

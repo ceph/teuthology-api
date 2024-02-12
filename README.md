@@ -103,9 +103,10 @@ Example
         "--suite-repo": "https://github.com/ceph/ceph-ci.git",
         "--teuthology-branch": "main",
         "--verbose": "1",
-        "--user": "example"
+        "<config_yaml>": ["/teuthology/containerized_node.yaml"]
+        "--owner": "example",
      }'
 
-Note: "--user" in data body should be same as your github username (case sensitive). Otherwise, you wouldn't have permission to kill jobs/run.
+Note: "--owner" in data body should be same as your github username (case sensitive). Otherwise, you wouldn't have permission to kill jobs/run.
 
 xxx

@@ -28,5 +28,5 @@ def create_run(
     or else it will SyntaxError: non-dafault
     argument follows default argument error.
     """
-    args = args.model_dump(by_alias=True)
+    args = args.model_dump(by_alias=True, exclude_unset=True)
     return run(args, logs, access_token, request)
