@@ -20,9 +20,8 @@ def create_run(
     request: Request,
     args: SuiteArgs,
     access_token: str = Depends(get_token),
-    dry_run: bool = False,
     logs: bool = False,
 ):
     args = args.model_dump(by_alias=True)
     args["--user"] = get_username(request)
-    return run(args, dry_run, logs, access_token)
+    return run(args, logs, access_token)

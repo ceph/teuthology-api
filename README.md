@@ -84,13 +84,12 @@ Returns `{"root": "success", "session": { <authentication details> }}`.
 
 POST `/suite/`: schedules a run.
 
-Two query parameters:
-- `dry_run` (boolean) - Do a dry run; do not schedule anything.
+Query parameters:
 - `logs` (boolean) - Send scheduling logs in response.
 
 Example
 
-    curl --location --request POST 'http://localhost:8082/suite?dry_run=false&logs=true' \
+    curl --location --request POST 'http://localhost:8082/suite&logs=true' \
     --header 'Content-Type: application/json' \
     --data-raw '{
         "--ceph": "main",
