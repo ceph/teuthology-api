@@ -14,7 +14,15 @@ PULPITO_URL = settings.pulpito_url
 PADDLES_URL = settings.paddles_url
 
 log = logging.getLogger(__name__)
-app = FastAPI()
+
+
+app_config = {}
+if DEPLOYMENT == "development":
+    app_config["docs_url"] = "/docs"
+else:
+    app_config["docs_url"] = None
+
+app = FastAPI(**app_config)
 
 
 @app.get("/")
