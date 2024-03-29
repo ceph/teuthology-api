@@ -41,8 +41,6 @@ def test_suite_run_success(m_get_run_details, m_get_username, m_logs_run):
 
 
 # make_run_name
-
-
 def test_make_run_name():
     m_run_dic = {
         "user": "testuser",
@@ -101,3 +99,60 @@ def test_make_run_name_with_no_kernel_branch():
         "teuthology-2022-03-21_14:30:00-rados-ceph1-distro-test-flavor-test-machine"
     )
     assert make_run_name(m_run_dic) == expected
+
+
+@patch("teuthology_api.routes.suite.get_username")
+def test_default_suite_args(m_get_username):
+    m_get_username.return_value = "user1"
+    m_default_args = {
+        "--dry-run": False,
+        "--non-interactive": False,
+        "--verbose": 1,
+        "--help": False,
+        "--arch": None,
+        "--ceph": "main",
+        "--ceph-repo": "https://github.com/ceph/ceph-ci.git",
+        "--distro": None,
+        "--distro-version": None,
+        "--email": None,
+        "--flavor": "default",
+        "--kernel": "distro",
+        "--machine-type": None,
+        "--newest": "0",
+        "--rerun-status.": False,
+        "--rerun-statuses": "fail,dead",
+        "--sha1": None,
+        "--sleep-before-teardown": "0",
+        "--suite": "teuthology:no-ceph",
+        "--suite-branch": None,
+        "--suite-dir": None,
+        "--suite-relpath": "qa",
+        "--suite_repo": "https://github.com/ceph/ceph-ci.git",
+        "--teuthology-branch": "main",
+        "--validate-sha1": "true",
+        "--wait": False,
+        "<config_yaml>": [],
+        "--owner": "user1",
+        "--num": "1",
+        "--priority": "70",
+        "--queue-backend": None,
+        "--rerun": None,
+        "--seed": "-1",
+        "--force-priority": False,
+        "--no-nested-subset": False,
+        "--job-threshold": "500",
+        "--archive-upload": None,
+        "--archive-upload-url": None,
+        "--throttle": None,
+        "--filter": None,
+        "--filter-out": None,
+        "--filter-all": None,
+        "--filter-fragments": "false",
+        "--subset": None,
+        "--timeout": "43200",
+        "--rocketchat": None,
+        "--limit": "0",
+    }
+    response = client.get("/suite/default")
+    assert response.status_code == 200
+    assert response.json() == m_default_args
