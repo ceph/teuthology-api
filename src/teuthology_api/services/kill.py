@@ -1,6 +1,7 @@
 import logging
 import os
 import subprocess
+import httpx
 
 from fastapi import HTTPException, Request
 
@@ -8,10 +9,11 @@ from teuthology_api.services.helpers import get_username, get_run_details
 
 
 TEUTHOLOGY_PATH = os.getenv("TEUTHOLOGY_PATH")
+ADMIN_TEAM =  os.getenv("ADMIN_TEAM")
 log = logging.getLogger(__name__)
 
 
-def run(args, send_logs: bool, access_token: str, request: Request):
+async def run(args, send_logs: bool, access_token: dict, request: Request):
     """
     Kill running teuthology jobs.
     """
@@ -30,16 +32,19 @@ def run(args, send_logs: bool, access_token: str, request: Request):
     else:
         log.error("teuthology-kill is missing --run")
         raise HTTPException(status_code=400, detail="--run is a required argument")
-    # TODO if user has admin priviledge, then they can kill any run/job.
+
     if run_owner.lower() != username.lower():
-        log.error(
-            "%s doesn't have permission to kill a job scheduled by: %s",
-            username,
-            run_owner,
-        )
-        raise HTTPException(
-            status_code=401, detail="You don't have permission to kill this run/job"
-        )
+        isUserAdmin = await isAdmin(username, access_token)
+        if not isUserAdmin:
+            log.error(
+                "%s doesn't have permission to kill a job scheduled by: %s",
+                username,
+                run_owner,
+            )
+            raise HTTPException(
+                status_code=401, detail="You don't have permission to kill this run/job"
+            )
+        log.info("Killing with admin privileges")
     try:
         kill_cmd = [f"{TEUTHOLOGY_PATH}/virtualenv/bin/teuthology-kill"]
         for flag, flag_value in args.items():
@@ -61,3 +66,19 @@ def run(args, send_logs: bool, access_token: str, request: Request):
     except Exception as exc:
         log.error("teuthology-kill command failed with the error: %s", repr(exc))
         raise HTTPException(status_code=500, detail=repr(exc)) from exc
+
+
+async def isAdmin(username, token):
+    TEAM_MEMBER_URL = (
+        f"https://api.github.com/orgs/ceph/teams/{ADMIN_TEAM}/memberships/{username}"
+    )
+    async with httpx.AsyncClient() as client:
+        headers = {
+            "Authorization": "token " + token["access_token"],
+            "Accept": "application/json",
+        }
+        response_org = await client.get(url=TEAM_MEMBER_URL, headers=headers)
+        response_org_dic = dict(response_org.json())
+        if response_org_dic.get("state") == "active":
+            return True
+        return False
