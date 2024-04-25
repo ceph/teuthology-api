@@ -28,12 +28,16 @@ async def run(args, send_logs: bool, access_token: dict, request: Request):
     run_name = args.get("--run")
     if run_name:
         run_details = get_run_details(run_name)
-        run_owner = run_details.get("user")
+        jobs_details = run_details.get("jobs", [])
+        if jobs_details:
+            run_owner = jobs_details[0].get("owner")
     else:
         log.error("teuthology-kill is missing --run")
         raise HTTPException(status_code=400, detail="--run is a required argument")
 
-    if run_owner.lower() != username.lower():
+    if (run_owner.lower() != username.lower()) or (
+        run_owner.lower() != f"scheduled_{username.lower()}@teuthology"
+    ):
         isUserAdmin = await isAdmin(username, access_token)
         if not isUserAdmin:
             log.error(
