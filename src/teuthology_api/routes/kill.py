@@ -20,7 +20,7 @@ async def create_run(
     request: Request,
     args: KillArgs,
     logs: bool = False,
-    access_token: str = Depends(get_token),
+    token: str = Depends(get_token),
 ):
     """
     POST route for killing a run or a job.
@@ -31,7 +31,7 @@ async def create_run(
     """
     try:
         args = args.model_dump(by_alias=True, exclude_unset=True)
-        return await run(args, logs, access_token, request)
+        return await run(args, logs, token, request)
     except HTTPException:
         raise
     except HTTPError as http_err:

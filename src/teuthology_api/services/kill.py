@@ -1,23 +1,23 @@
 import logging
 import os
 import subprocess
-import httpx
 
 from fastapi import HTTPException, Request
 
-from teuthology_api.services.helpers import get_username, get_run_details
+from teuthology_api.services.helpers import get_username, get_run_details, isAdmin
 
 
 TEUTHOLOGY_PATH = os.getenv("TEUTHOLOGY_PATH")
 ADMIN_TEAM =  os.getenv("ADMIN_TEAM")
+
 log = logging.getLogger(__name__)
 
 
-async def run(args, send_logs: bool, access_token: dict, request: Request):
+async def run(args, send_logs: bool, token: dict, request: Request):
     """
     Kill running teuthology jobs.
     """
-    if not access_token:
+    if not token:
         log.error("access_token empty, user probably is not logged in.")
         raise HTTPException(
             status_code=401,
@@ -38,7 +38,7 @@ async def run(args, send_logs: bool, access_token: dict, request: Request):
     if (run_owner.lower() != username.lower()) or (
         run_owner.lower() != f"scheduled_{username.lower()}@teuthology"
     ):
-        isUserAdmin = await isAdmin(username, access_token)
+        isUserAdmin = await isAdmin(username, token["access_token"])
         if not isUserAdmin:
             log.error(
                 "%s doesn't have permission to kill a job scheduled by: %s",
@@ -70,19 +70,3 @@ async def run(args, send_logs: bool, access_token: dict, request: Request):
     except Exception as exc:
         log.error("teuthology-kill command failed with the error: %s", repr(exc))
         raise HTTPException(status_code=500, detail=repr(exc)) from exc
-
-
-async def isAdmin(username, token):
-    TEAM_MEMBER_URL = (
-        f"https://api.github.com/orgs/ceph/teams/{ADMIN_TEAM}/memberships/{username}"
-    )
-    async with httpx.AsyncClient() as client:
-        headers = {
-            "Authorization": "token " + token["access_token"],
-            "Accept": "application/json",
-        }
-        response_org = await client.get(url=TEAM_MEMBER_URL, headers=headers)
-        response_org_dic = dict(response_org.json())
-        if response_org_dic.get("state") == "active":
-            return True
-        return False
