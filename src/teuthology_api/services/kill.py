@@ -8,7 +8,7 @@ from teuthology_api.services.helpers import get_username, get_run_details, isAdm
 
 
 TEUTHOLOGY_PATH = os.getenv("TEUTHOLOGY_PATH")
-ADMIN_TEAM =  os.getenv("ADMIN_TEAM")
+ADMIN_TEAM = os.getenv("ADMIN_TEAM")
 
 log = logging.getLogger(__name__)
 
@@ -25,17 +25,17 @@ async def run(args, send_logs: bool, token: dict, request: Request):
             headers={"WWW-Authenticate": "Bearer"},
         )
     username = get_username(request)
-    run_name = args.get("--run")
+    run_name = args.get("--run", "")
     if run_name:
         run_details = get_run_details(run_name)
         jobs_details = run_details.get("jobs", [])
         if jobs_details:
-            run_owner = jobs_details[0].get("owner")
+            run_owner = jobs_details[0].get("owner", "")
     else:
         log.error("teuthology-kill is missing --run")
         raise HTTPException(status_code=400, detail="--run is a required argument")
 
-    if (run_owner.lower() != username.lower()) or (
+    if (run_owner.lower() != username.lower()) and (
         run_owner.lower() != f"scheduled_{username.lower()}@teuthology"
     ):
         isUserAdmin = await isAdmin(username, token["access_token"])
