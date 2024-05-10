@@ -33,7 +33,7 @@ async def run(args, send_logs: bool, token: dict, request: Request):
         log.error("teuthology-kill is missing --run")
         raise HTTPException(status_code=400, detail="--run is a required argument")
 
-    if (run_owner.lower() != username.lower()) or (
+    if (run_owner.lower() != username.lower()) and (
         run_owner.lower() != f"scheduled_{username.lower()}@teuthology"
     ):
         isUserAdmin = await isAdmin(username, token["access_token"])
