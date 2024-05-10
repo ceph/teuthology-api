@@ -2,6 +2,7 @@ from multiprocessing import Process
 import logging
 import os
 import uuid
+import httpx
 from pathlib import Path
 
 from fastapi import HTTPException, Request
@@ -15,6 +16,8 @@ load_dotenv()
 
 PADDLES_URL = os.getenv("PADDLES_URL")
 ARCHIVE_DIR = os.getenv("ARCHIVE_DIR")
+TEUTHOLOGY_PATH = os.getenv("TEUTHOLOGY_PATH") 
+ADMIN_TEAM = os.getenv("ADMIN_TEAM") 
 
 log = logging.getLogger(__name__)
 
@@ -96,3 +99,19 @@ def get_token(request: Request):
         detail="You need to be logged in",
         headers={"WWW-Authenticate": "Bearer"},
     )
+
+
+async def isAdmin(username, token):
+    TEAM_MEMBER_URL = (
+        f"https://api.github.com/orgs/ceph/teams/{ADMIN_TEAM}/memberships/{username}"
+    )
+    async with httpx.AsyncClient() as client:
+        headers = {
+            "Authorization": "token " + token,
+            "Accept": "application/json",
+        }
+        response_org = await client.get(url=TEAM_MEMBER_URL, headers=headers)
+        response_org_dic = dict(response_org.json())
+        if response_org_dic.get("state") == "active":
+            return True
+        return False
