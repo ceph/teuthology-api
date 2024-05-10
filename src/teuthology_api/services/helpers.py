@@ -16,8 +16,10 @@ load_dotenv()
 
 PADDLES_URL = os.getenv("PADDLES_URL")
 ARCHIVE_DIR = os.getenv("ARCHIVE_DIR")
-TEUTHOLOGY_PATH = os.getenv("TEUTHOLOGY_PATH") 
-ADMIN_TEAM = os.getenv("ADMIN_TEAM") 
+TEUTHOLOGY_PATH = os.getenv("TEUTHOLOGY_PATH")
+
+ADMIN_TEAM = os.getenv("ADMIN_TEAM")
+GH_ORG_TEAM_URL = os.getenv("GH_ORG_TEAM_URL")
 
 log = logging.getLogger(__name__)
 
@@ -102,16 +104,15 @@ def get_token(request: Request):
 
 
 async def isAdmin(username, token):
-    TEAM_MEMBER_URL = (
-        f"https://api.github.com/orgs/ceph/teams/{ADMIN_TEAM}/memberships/{username}"
-    )
+    TEAM_MEMBER_URL = f"{GH_ORG_TEAM_URL}/{ADMIN_TEAM}/memberships/{username}"
     async with httpx.AsyncClient() as client:
         headers = {
             "Authorization": "token " + token,
             "Accept": "application/json",
         }
         response_org = await client.get(url=TEAM_MEMBER_URL, headers=headers)
-        response_org_dic = dict(response_org.json())
-        if response_org_dic.get("state") == "active":
-            return True
+        if response_org:
+            response_org_dict = dict(response_org.json())
+            if response_org_dict.get("state", "") == "active":
+                return True
         return False
