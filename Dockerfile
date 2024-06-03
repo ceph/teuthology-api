@@ -1,5 +1,6 @@
-FROM ubuntu:focal
+FROM ubuntu:jammy
 ENV DEBIAN_FRONTEND=noninteractive
+ENV VENV=${VENV:-"venv"}
 RUN apt-get update && \
     apt-get install -y \
     git \
@@ -21,7 +22,8 @@ RUN apt-get update && \
 COPY .teuthology.yaml /root
 WORKDIR /teuthology_api
 COPY . /teuthology_api/
-RUN pip3 install -e .
+RUN python3 -m venv ${VENV}
+RUN /teuthology_api/${VENV}/bin/pip3 install -e .
 RUN mkdir /archive_dir/
 
-CMD sh /teuthology_api/start_container.sh
+ENTRYPOINT /teuthology_api/start_container.sh

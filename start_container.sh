@@ -1,12 +1,14 @@
-#!/usr/bin/env sh
+#!/usr/bin/bash
 set -ex
 trap exit TERM
 
 HOST=${TEUTHOLOGY_API_SERVER_HOST:-"0.0.0.0"}
 PORT=${TEUTHOLOGY_API_SERVER_PORT:-"8082"}
+VENV=${VENV:-"venv"}
 
 alembic -x verbose=1 upgrade head
 
+source ${VENV}/bin/activate
 cd /teuthology_api/src/
 
 if [ "$DEPLOYMENT" = "development" ]; then
