@@ -2,16 +2,17 @@ import logging
 import os
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import RedirectResponse
+from dotenv import load_dotenv
 import httpx
-from teuthology_api.config import settings
 
+load_dotenv()
 
-GH_CLIENT_ID = settings.gh_client_id
-GH_CLIENT_SECRET = settings.gh_client_secret
-GH_AUTHORIZATION_BASE_URL = settings.gh_authorization_base_url
-GH_TOKEN_URL = settings.gh_token_url
-GH_FETCH_MEMBERSHIP_URL = settings.gh_fetch_membership_url
-PULPITO_URL = settings.pulpito_url
+GH_CLIENT_ID = os.getenv("GH_CLIENT_ID")
+GH_CLIENT_SECRET = os.getenv("GH_CLIENT_SECRET")
+GH_AUTHORIZATION_BASE_URL = os.getenv("GH_AUTHORIZATION_BASE_URL")
+GH_TOKEN_URL = os.getenv("GH_TOKEN_URL")
+GH_FETCH_MEMBERSHIP_URL = os.getenv("GH_FETCH_MEMBERSHIP_URL")
+PULPITO_URL = os.getenv("PULPITO_URL")
 
 log = logging.getLogger(__name__)
 router = APIRouter(

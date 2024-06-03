@@ -1,13 +1,13 @@
 import logging
+import os
 import subprocess
 
 from fastapi import HTTPException, Request
 
-from teuthology_api.config import settings
 from teuthology_api.services.helpers import get_username, get_run_details
 
 
-TEUTHOLOGY_PATH = settings.teuthology_path
+TEUTHOLOGY_PATH = os.getenv("TEUTHOLOGY_PATH")
 log = logging.getLogger(__name__)
 
 
