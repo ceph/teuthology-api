@@ -9,6 +9,8 @@ VENV=${VENV:-"venv"}
 alembic -x verbose=1 upgrade head
 
 source ${VENV}/bin/activate
+alembic -x verbose=1 upgrade head
+
 cd /teuthology_api/src/
 
 if [ "$DEPLOYMENT" = "development" ]; then
