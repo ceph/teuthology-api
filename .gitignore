@@ -53,3 +53,6 @@ MANIFEST
 .conda*/
 .python-version
 venv
+
+# Environment Variables
+.env
