@@ -43,7 +43,7 @@ def run(args, send_logs: bool, access_token: str):
         return {"run": run_details}
     except Exception as exc:
         log.error("teuthology.suite.main failed with the error: %s", repr(exc))
-        raise HTTPException(status_code=500, detail=repr(exc)) from exc
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
 
 
 def make_run_name(run_dic):

@@ -37,8 +37,8 @@ async def create_run(
     except HTTPError as http_err:
         log.error(http_err)
         raise HTTPException(
-            status_code=http_err.response.status_code, detail=repr(http_err)
+            status_code=http_err.response.status_code, detail=str(http_err)
         ) from http_err
     except Exception as err:
         log.error(err)
-        raise HTTPException(status_code=500, detail=repr(err)) from err
+        raise HTTPException(status_code=500, detail=str(err)) from err
