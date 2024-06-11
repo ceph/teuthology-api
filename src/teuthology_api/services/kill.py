@@ -61,12 +61,13 @@ async def run(args, send_logs: bool, token: dict, request: Request):
         )
         stdout, stderr = proc.communicate()
         returncode = proc.wait(timeout=120)
-        log.info(stdout)
+        output_logs = stdout.decode()
+        log.info(output_logs)
         if returncode != 0:
-            raise Exception(stdout)
+            raise Exception(output_logs)
         if send_logs:
             return {"kill": "success", "logs": stdout}
         return {"kill": "success"}
     except Exception as exc:
         log.error("teuthology-kill command failed with the error: %s", repr(exc))
-        raise HTTPException(status_code=500, detail=repr(exc)) from exc
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
