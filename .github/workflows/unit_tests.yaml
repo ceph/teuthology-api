@@ -3,8 +3,13 @@ on: pull_request
 
 jobs:
   build:
-
-    runs-on: ubuntu-latest
+    name: Unit Tests on python${{ matrix.python }} via ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            python: "3.10"
     steps:
       - uses: actions/checkout@v4
       - name: Setup Python
