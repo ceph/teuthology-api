@@ -9,6 +9,8 @@ VENV=${VENV:-"venv"}
 source ${VENV}/bin/activate
 cd /teuthology_api/src/
 
+alembic -x verbose=1 upgrade head
+
 if [ "$DEPLOYMENT" = "development" ]; then
   uvicorn teuthology_api.main:app --reload --port $PORT --host $HOST
 else
