@@ -25,3 +25,14 @@ def create_run(
     args = args.model_dump(by_alias=True)
     args["--user"] = get_username(request)
     return run(args, logs, access_token)
+
+
+@router.get("/default", status_code=200)
+def default_values(request: Request):
+    args = {
+        "--suite": "teuthology:no-ceph",
+        "--machine-type": None,
+        "--owner": get_username(request),
+    }
+    default = SuiteArgs(**args)
+    return default.model_dump(by_alias=True)
