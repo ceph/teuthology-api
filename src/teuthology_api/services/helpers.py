@@ -5,15 +5,16 @@ import uuid
 from pathlib import Path
 
 from fastapi import HTTPException, Request
-
-from teuthology_api.config import settings
+from dotenv import load_dotenv
 
 import teuthology
 import requests  # Note: import requests after teuthology
 from requests.exceptions import HTTPError
 
-PADDLES_URL = settings.paddles_url
-ARCHIVE_DIR = settings.archive_dir
+load_dotenv()
+
+PADDLES_URL = os.getenv("PADDLES_URL")
+ARCHIVE_DIR = os.getenv("ARCHIVE_DIR")
 
 log = logging.getLogger(__name__)
 
