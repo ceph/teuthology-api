@@ -45,7 +45,7 @@ A REST API to execute [teuthology commands](https://docs.ceph.com/projects/teuth
         environment:
             DEPLOYMENT: development
         volumes:
-            - ../../../teuthology-api:/teuthology_api/:rw
+            - ../../../teuthology-api/src:/teuthology_api/src:rw
     ```
     `DEPLOYMENT: development` would run the server in `--reload` mode (server would restart when changes are made in `/src` dir) and `volumes` would mount host directory to docker's directory (local changes would reflect in docker container).
 
@@ -71,7 +71,9 @@ A REST API to execute [teuthology commands](https://docs.ceph.com/projects/teuth
 
 The documentation can be accessed at http://localhost:8082/docs after running the application.
 
-Note: To run commands, authenticate by visiting `http://localhost:8082/login` through browser and follow the github authentication steps (this stores the auth token in browser cookies).
+Once you have teuthology-api running, authenticate by visiting `http://localhost:8082/login` through browser and follow the github authentication steps (this stores the auth token in browser cookies).
+
+> Note: To test below endpoints locally, recommended flow is to login through browser (as mentioned above) and then send requests (and receive response) through interactive docs at `/docs`.
 
 ### Route `/`
 
