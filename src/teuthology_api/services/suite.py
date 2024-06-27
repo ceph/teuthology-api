@@ -1,4 +1,5 @@
 from datetime import datetime
+from tempfile import NamedTemporaryFile
 import logging
 import teuthology.suite
 
@@ -23,7 +24,19 @@ def run(args, send_logs: bool, access_token: str):
     try:
         args["--timestamp"] = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
 
+        temp_files: list[NamedTemporaryFile] = []
+        if "<config_yaml>" in args:
+            for config in args["<config_yaml>"]:
+                temp_file = NamedTemporaryFile(suffix=".yaml")
+                temp_file.write(config.encode())
+                temp_file.seek(0)
+                temp_files.append(temp_file)
+            args["<config_yaml>"] = [file.name for file in temp_files]
+
         logs = logs_run(teuthology.suite.main, args)
+
+        for file in temp_files:
+            file.close()
 
         # get run details from paddles
         run_name = make_run_name(
