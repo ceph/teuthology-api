@@ -21,7 +21,7 @@ class SuiteArgs(BaseArgs):
     kernel: Union[str, None] = Field(default="distro", alias="--kernel")
     machine_type: Union[str, None] = Field(default="smithi", alias="--machine-type")
     newest: Union[str, None] = Field(default="0", alias="--newest")
-    rerun_status: Union[bool, None] = Field(default=False, alias="--rerun-status.")
+    rerun_status: Union[bool, None] = Field(default=False, alias="--rerun-status")
     rerun_statuses: Union[str, None] = Field(
         default="fail,dead", alias="--rerun-statuses"
     )
@@ -34,7 +34,7 @@ class SuiteArgs(BaseArgs):
     suite_dir: Union[str, None] = Field(default=None, alias="--suite-dir")
     suite_relpath: Union[str, None] = Field(default="qa", alias="--suite-relpath")
     suite_repo: Union[str, None] = Field(
-        default="https://github.com/ceph/ceph-ci.git", alias="--suite_repo"
+        default="https://github.com/ceph/ceph-ci.git", alias="--suite-repo"
     )
     teuthology_branch: Union[str, None] = Field(
         default="main", alias="--teuthology-branch"
