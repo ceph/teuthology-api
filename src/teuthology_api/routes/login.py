@@ -4,6 +4,7 @@ from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import RedirectResponse
 import httpx
 from teuthology_api.config import settings
+from teuthology_api.services.helpers import isAdmin
 
 
 GH_CLIENT_ID = settings.gh_client_id
@@ -84,9 +85,12 @@ async def handle_callback(code: str, request: Request):
             "access_token": token,
         }
         request.session["user"] = data
+        isUserAdmin = await isAdmin(data["username"], data["access_token"])
+        data["isUserAdmin"] = isUserAdmin
     cookie_data = {
         "username": data["username"],
         "avatar_url": response_org_dic.get("user", {}).get("avatar_url"),
+        "isUserAdmin": isUserAdmin,
     }
     cookie = "; ".join(
         [f"{str(key)}={str(value)}" for key, value in cookie_data.items()]

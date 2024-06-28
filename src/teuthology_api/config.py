@@ -27,9 +27,7 @@ class APISettings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env", env_file_encoding="utf-8", extra="ignore"
     )
-    # TODO: team names need to be changed below when created
-    admin_team: str = "ceph"  # ceph's github team with *sudo* access to sepia
-    teuth_team: str = "teuth"  # ceph's github team with access to sepia
+    admin_team: str = "Ceph"  # ceph's github team with *sudo* access to sepia
 
 
 @lru_cache()
