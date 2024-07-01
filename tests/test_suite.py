@@ -1,18 +1,7 @@
 from fastapi.testclient import TestClient
-from teuthology_api.main import app
 from unittest.mock import patch
-from teuthology_api.services.helpers import get_token
-from teuthology_api.services.suite import make_run_name, get_run_details
+from teuthology_api.services.suite import make_run_name
 import json
-
-client = TestClient(app)
-
-
-async def override_get_token():
-    return {"access_token": "token_123", "token_type": "bearer"}
-
-
-app.dependency_overrides[get_token] = override_get_token
 
 mock_suite_args = {
     "--dry-run": False,
@@ -28,11 +17,14 @@ mock_suite_args = {
     "--machine-type": "testnode",
 }
 
+
 # suite
 @patch("teuthology_api.services.suite.logs_run")
 @patch("teuthology_api.routes.suite.get_username")
 @patch("teuthology_api.services.suite.get_run_details")
-def test_suite_run_success(m_get_run_details, m_get_username, m_logs_run):
+def test_suite_run_success(
+    m_get_run_details, m_get_username, m_logs_run, client: TestClient
+):
     m_get_username.return_value = "user1"
     m_get_run_details.return_value = {"id": "7451978", "user": "user1"}
     response = client.post("/suite", data=json.dumps(mock_suite_args))
