@@ -8,9 +8,10 @@ if [ ! -d "$folder" ] ; then
           context: ../../../../
         ports:
             - 8082:8080
-        environment: 
+        environment:
             TEUTHOLOGY_API_SERVER_HOST: 0.0.0.0
             TEUTHOLOGY_API_SERVER_PORT: 8080
+            TEUTHOLOGY_API_SQLITE_URI: sqlite:////teuthology_api/teuthology.db
         depends_on:
             - teuthology
             - paddles

@@ -7,9 +7,9 @@ PORT=${TEUTHOLOGY_API_SERVER_PORT:-"8082"}
 VENV=${VENV:-"venv"}
 
 source ${VENV}/bin/activate
-cd /teuthology_api/src/
-
 alembic -x verbose=1 upgrade head
+
+cd /teuthology_api/src/
 
 if [ "$DEPLOYMENT" = "development" ]; then
   uvicorn teuthology_api.main:app --reload --port $PORT --host $HOST
