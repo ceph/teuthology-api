@@ -52,9 +52,11 @@ async def run(args, send_logs: bool, token: dict, request: Request):
     try:
         kill_cmd = [f"{TEUTHOLOGY_PATH}/virtualenv/bin/teuthology-kill"]
         for flag, flag_value in args.items():
-            if isinstance(flag_value, bool):
-                flag_value = int(flag_value)
-            kill_cmd += [flag, str(flag_value)]
+            if isinstance(flag_value, bool):  # check for --preserve-queues
+                if flag_value == True:
+                    kill_cmd += [flag]
+            else:
+                kill_cmd += [flag, str(flag_value)]
         log.info(kill_cmd)
         proc = subprocess.Popen(
             kill_cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
