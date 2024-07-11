@@ -24,4 +24,9 @@ def create_run(
 ):
     args = args.model_dump(by_alias=True)
     args["--user"] = get_username(request)
-    return run(args, logs, access_token)
+    try:
+        created_run = run(args, logs, access_token)
+        log.debug(created_run)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return created_run
