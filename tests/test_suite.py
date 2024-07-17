@@ -40,9 +40,18 @@ def test_suite_run_success(m_get_run_details, m_get_username, m_logs_run):
     assert response.json() == {"run": {"id": "7451978", "user": "user1"}}
 
 
+# test suite with default args
+@patch("teuthology_api.services.suite.logs_run")
+@patch("teuthology_api.routes.suite.get_username")
+@patch("teuthology_api.services.suite.get_run_details")
+def test_suite_run_default_success(m_get_run_details, m_get_username, m_logs_run):
+    m_get_username.return_value = "user1"
+    m_get_run_details.return_value = {"id": "7451978", "user": "user1"}
+    response = client.post("/suite/default", data=json.dumps(mock_suite_args))
+    assert response.status_code == 200
+    assert response.json() == {"run": {"id": "7451978", "user": "user1"}}
+
 # make_run_name
-
-
 def test_make_run_name():
     m_run_dic = {
         "user": "testuser",
