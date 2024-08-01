@@ -37,6 +37,7 @@ def read_all_presets(username: str, db: Session = Depends(get_db)):
 @router.post("/add", status_code=status.HTTP_201_CREATED)
 def add_preset(
     preset: Presets,
+    replace: bool = False,
     db: Session = Depends(get_db),
     access_token: str = Depends(get_token),
 ):
@@ -46,6 +47,18 @@ def add_preset(
             detail="You need to be logged in",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+    db_presets = PresetsService(db).get_by_username(preset.username)
+    if len(db_presets) == 10:
+        if not replace:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Only 10 presets for a user can be stored at a time.",
+            )
+        # If replace parameter is set true, delete the
+        # oldest preset of the user and create a new one
+        PresetsService(db).delete(db_presets[0].id)
+
     db_preset_exists = PresetsService(db).get_by_username_and_name(
         preset.username, preset.name
     )

@@ -16,7 +16,9 @@ class PresetsService:
         self.db = db
 
     def get_by_username(self, username: str):
-        statement = select(Presets).where(Presets.username == username)
+        statement = (
+            select(Presets).where(Presets.username == username).order_by(Presets.id)
+        )
         db_presets = self.db.exec(statement).all()
         return db_presets
 
