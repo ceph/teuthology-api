@@ -3,6 +3,8 @@ on: pull_request
 
 jobs:
   build:
+    env:
+      TEUTHOLOGY_API_SQLITE_URI: ${{ secrets.TEUTHOLOGY_API_SQLITE_URI }}
     name: Unit Tests on python${{ matrix.python }} via ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
