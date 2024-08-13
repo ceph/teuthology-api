@@ -28,7 +28,7 @@ def upgrade() -> None:
         sa.Column("username", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
         sa.Column("name", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
         sa.Column("suite", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
-        sa.Column("cmd", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+        sa.Column("cmd", sa.JSON(), nullable=False),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("username", "name"),
     )

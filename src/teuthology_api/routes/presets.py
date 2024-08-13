@@ -1,10 +1,11 @@
 import logging
 
-from fastapi import status, APIRouter, HTTPException, Depends
+from fastapi import status, APIRouter, Depends, HTTPException, Request
 from sqlmodel import Session
 
-from teuthology_api.services.helpers import get_token
 from teuthology_api.models import get_db, Presets
+from teuthology_api.schemas.preset import PresetArgs
+from teuthology_api.services.helpers import get_token, get_username
 from teuthology_api.services.presets import PresetsDatabaseException, PresetsService
 
 logger = logging.getLogger(__name__)
@@ -36,7 +37,8 @@ def read_all_presets(username: str, db: Session = Depends(get_db)):
 
 @router.post("/add", status_code=status.HTTP_201_CREATED)
 def add_preset(
-    preset: Presets,
+    request: Request,
+    preset: PresetArgs,
     replace: bool = False,
     db: Session = Depends(get_db),
     access_token: str = Depends(get_token),
@@ -48,7 +50,8 @@ def add_preset(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    db_presets = PresetsService(db).get_by_username(preset.username)
+    username = get_username(request)
+    db_presets = PresetsService(db).get_by_username(username)
     if len(db_presets) == 10:
         if not replace:
             raise HTTPException(
@@ -60,20 +63,22 @@ def add_preset(
         PresetsService(db).delete(db_presets[0].id)
 
     db_preset_exists = PresetsService(db).get_by_username_and_name(
-        preset.username, preset.name
+        username, preset.name
     )
     if db_preset_exists:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Preset with name {preset.name} exists",
         )
-    return PresetsService(db).create(preset)
+
+    db_preset = Presets(**preset.model_dump(), username=username)
+    return PresetsService(db).create(db_preset)
 
 
 @router.put("/edit/{preset_id}", status_code=status.HTTP_200_OK)
 def update_preset(
     preset_id: int,
-    updated_preset: Presets,
+    updated_preset: PresetArgs,
     db: Session = Depends(get_db),
     access_token: str = Depends(get_token),
 ):

@@ -1,17 +1,22 @@
+from unittest.mock import patch
 from urllib.parse import urlencode
 
 from fastapi.testclient import TestClient
 from sqlmodel import Session
 
 preset_payload = {
-    "username": "user1",
     "name": "test",
     "suite": "teuthology:no-ceph",
-    "cmd": '{"owner": "user1"}',
+    "cmd": {
+        "--suite": "teuthology:no-ceph",
+        "--owner": "user1",
+    },
 }
 
 
-def test_create_preset(session: Session, client: TestClient):
+@patch("teuthology_api.routes.presets.get_username")
+def test_create_preset(m_get_username, session: Session, client: TestClient):
+    m_get_username.return_value = "user1"
     response = client.post("/presets/add", json=preset_payload)
     assert response.status_code == 201
 
