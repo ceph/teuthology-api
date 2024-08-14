@@ -1,4 +1,4 @@
-from multiprocessing import Process
+from multiprocessing import Process, Queue
 import logging
 import os
 import uuid
@@ -27,26 +27,44 @@ def logs_run(func, args):
     _id = str(uuid.uuid4())
     archive = Path(ARCHIVE_DIR)
     log_file = archive / f"{_id}.log"
-
-    teuthology_process = Process(target=_execute_with_logs, args=(func, args, log_file))
-    teuthology_process.start()
-    teuthology_process.join()
-
+    teuth_queue = Queue()
+    teuth_process = Process(
+        target=_execute_with_logs, args=(func, args, log_file, teuth_queue)
+    )
+    teuth_process.daemon = True  # Set the process as a daemon
+    teuth_process.start()
+    teuth_process.join(timeout=180)  # Set the timeout value in seconds
+    if teuth_process.is_alive():
+        teuth_process.terminate()  # Terminate the process if it exceeds the timeout
+        teuth_process.join()
+        raise TimeoutError("Process execution timed out")
     logs = ""
     with open(log_file, encoding="utf-8") as file:
         logs = file.readlines()
     if os.path.isfile(log_file):
         os.remove(log_file)
-    return logs
+    log.debug(logs)
+    if teuth_process.exitcode > 0:
+        e = teuth_queue.get()
+        log.error(e)
+        return "fail", e, 0
+    else:
+        job_count = teuth_queue.get()
+        return "success", logs, job_count
 
 
-def _execute_with_logs(func, args, log_file):
+def _execute_with_logs(func, args, log_file, teuth_queue):
     """
     To store logs, set a new FileHandler for teuthology root logger
     and then execute the command function.
     """
     teuthology.setup_log_file(log_file)
-    func(args)
+    try:
+        job_count = func(args)
+        teuth_queue.put(job_count)
+    except Exception as e:
+        teuth_queue.put(e)
+        raise
 
 
 def get_run_details(run_name: str):

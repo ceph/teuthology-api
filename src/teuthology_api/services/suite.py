@@ -20,30 +20,29 @@ def run(args, send_logs: bool, access_token: str):
             detail="You need to be logged in",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    try:
-        args["--timestamp"] = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
-
-        logs = logs_run(teuthology.suite.main, args)
-
-        # get run details from paddles
-        run_name = make_run_name(
-            {
-                "machine_type": args["--machine-type"],
-                "user": args["--user"],
-                "timestamp": args["--timestamp"],
-                "suite": args["--suite"],
-                "ceph_branch": args["--ceph"],
-                "kernel_branch": args["--kernel"],
-                "flavor": args["--flavor"],
-            }
-        )
-        run_details = get_run_details(run_name)
-        if send_logs or args["--dry-run"]:
-            return {"run": run_details, "logs": logs}
-        return {"run": run_details}
-    except Exception as exc:
-        log.error("teuthology.suite.main failed with the error: %s", repr(exc))
-        raise HTTPException(status_code=500, detail=repr(exc)) from exc
+    args["--timestamp"] = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
+    status, logs, job_count = logs_run(teuthology.suite.main, args)
+    if status == "fail":
+        raise logs
+    if args["--dry-run"] or job_count < 1:
+        return {"run": {}, "logs": logs, "job_count": job_count}
+    # get run details from paddles
+    run_name = make_run_name(
+        {
+            "machine_type": args["--machine-type"],
+            "user": args["--user"],
+            "timestamp": args["--timestamp"],
+            "suite": args["--suite"],
+            "ceph_branch": args["--ceph"],
+            "kernel_branch": args["--kernel"],
+            "flavor": args["--flavor"],
+        }
+    )
+    run_details = get_run_details(run_name)
+    if send_logs:
+        return {"run": run_details, "logs": logs, "job_count": job_count}
+    else:
+        return {"run": run_details, "job_count": job_count}
 
 
 def make_run_name(run_dic):

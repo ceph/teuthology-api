@@ -37,7 +37,7 @@ class SuiteArgs(BaseArgs):
         default="https://github.com/ceph/ceph-ci.git", alias="--suite-repo"
     )
     teuthology_branch: Union[str, None] = Field(
-        default="main", alias="--teuthology-branch"
+        default=None, alias="--teuthology-branch"
     )
     validate_sha1: Union[str, None] = Field(default="true", alias="--validate-sha1")
     wait: Union[bool, None] = Field(default=False, alias="--wait")
