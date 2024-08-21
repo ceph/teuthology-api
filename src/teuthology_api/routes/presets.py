@@ -1,4 +1,5 @@
 import logging
+from typing import Optional
 
 from fastapi import status, APIRouter, Depends, HTTPException, Request
 from sqlmodel import Session
@@ -25,8 +26,13 @@ def read_preset(username: str, name: str, db: Session = Depends(get_db)):
 
 
 @router.get("/list", status_code=status.HTTP_200_OK)
-def read_all_presets(username: str, db: Session = Depends(get_db)):
-    db_presets = PresetsService(db).get_by_username(username)
+def read_all_presets(
+    username: str, suite: Optional[str] = None, db: Session = Depends(get_db)
+):
+    if suite:
+        db_presets = PresetsService(db).get_by_username_and_suite(username, suite)
+    else:
+        db_presets = PresetsService(db).get_by_username(username)
     if not db_presets:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

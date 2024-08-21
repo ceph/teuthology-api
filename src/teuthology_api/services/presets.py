@@ -22,6 +22,13 @@ class PresetsService:
         db_presets = self.db.exec(statement).all()
         return db_presets
 
+    def get_by_username_and_suite(self, username: str, suite: str):
+        statement = select(Presets).where(
+            Presets.username == username, Presets.suite == suite
+        )
+        db_presets = self.db.exec(statement).all()
+        return db_presets
+
     def get_by_username_and_name(
         self, username: str, preset_name: str
     ) -> Union[Presets, None]:
