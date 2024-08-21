@@ -104,6 +104,9 @@ def get_token(request: Request):
 
 
 async def isAdmin(username, token):
+    if not (GH_ORG_TEAM_URL and ADMIN_TEAM):
+        log.error("GH_ORG_TEAM_URL or ADMIN_TEAM is not set in .env")
+        return False
     TEAM_MEMBER_URL = f"{GH_ORG_TEAM_URL}/{ADMIN_TEAM}/memberships/{username}"
     async with httpx.AsyncClient() as client:
         headers = {
