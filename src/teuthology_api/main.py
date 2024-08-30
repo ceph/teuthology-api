@@ -34,6 +34,14 @@ if DEPLOYMENT == "development":
         allow_methods=["*"],
         allow_headers=["*"],
     )
+else:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=[PULPITO_URL, PADDLES_URL],
+        allow_credentials=True,
+        allow_methods=["GET", "POST", "OPTIONS"],
+        allow_headers=["Cookie"],
+    )
 
 app.add_middleware(SessionMiddleware, secret_key=SESSION_SECRET_KEY)
 app.include_router(suite.router)
