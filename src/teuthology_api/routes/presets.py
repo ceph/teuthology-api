@@ -5,7 +5,7 @@ from fastapi import status, APIRouter, Depends, HTTPException, Request
 from sqlmodel import Session
 
 from teuthology_api.models import get_db, Presets
-from teuthology_api.schemas.preset import PresetArgs
+from teuthology_api.schemas.preset import PresetArgs, PresetUpdateArgs
 from teuthology_api.services.helpers import get_token, get_username
 from teuthology_api.services.presets import PresetsDatabaseException, PresetsService
 
@@ -16,6 +16,8 @@ router = APIRouter(prefix="/presets", tags=["presets"])
 
 @router.get("/", status_code=status.HTTP_200_OK)
 def read_preset(username: str, name: str, db: Session = Depends(get_db)):
+    # GitHub usernames are case-insensitive
+    username = username.lower()
     db_preset = PresetsService(db).get_by_username_and_name(username, name)
     if db_preset is None:
         raise HTTPException(
@@ -29,6 +31,7 @@ def read_preset(username: str, name: str, db: Session = Depends(get_db)):
 def read_all_presets(
     username: str, suite: Optional[str] = None, db: Session = Depends(get_db)
 ):
+    username = username.lower()
     if suite:
         db_presets = PresetsService(db).get_by_username_and_suite(username, suite)
     else:
@@ -56,7 +59,7 @@ def add_preset(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    username = get_username(request)
+    username = get_username(request).lower()
     db_presets = PresetsService(db).get_by_username(username)
     if len(db_presets) == 10:
         if not replace:
@@ -77,14 +80,16 @@ def add_preset(
             detail=f"Preset with name {preset.name} exists",
         )
 
-    db_preset = Presets(**preset.model_dump(), username=username)
+    db_preset = Presets(
+        **preset.model_dump(), username=username, suite=preset.cmd["--suite"]
+    )
     return PresetsService(db).create(db_preset)
 
 
 @router.put("/edit/{preset_id}", status_code=status.HTTP_200_OK)
 def update_preset(
     preset_id: int,
-    updated_preset: PresetArgs,
+    preset: PresetUpdateArgs,
     db: Session = Depends(get_db),
     access_token: str = Depends(get_token),
 ):
@@ -95,9 +100,15 @@ def update_preset(
             headers={"WWW-Authenticate": "Bearer"},
         )
     try:
-        return PresetsService(db).update(
-            preset_id, updated_preset.model_dump(exclude_unset=True)
-        )
+        updated_preset = preset.model_dump(exclude_unset=True)
+        if updated_preset == {}:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Nothing new to update",
+            )
+        if preset.cmd:
+            updated_preset["suite"] = preset.cmd["--suite"]
+        return PresetsService(db).update(preset_id, updated_preset)
     except PresetsDatabaseException as exc:
         raise HTTPException(status_code=exc.code, detail=str(exc))
 
