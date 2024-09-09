@@ -8,13 +8,16 @@ from teuthology_api.services.helpers import logs_run, get_run_details
 
 log = logging.getLogger(__name__)
 
+# Load environment variables
+DEPLOYMENT = os.getenv('DEPLOYMENT', 'production')  # Default to 'production' if not set
 
 def run(args, send_logs: bool, access_token: str):
     """
     Schedule a suite.
     :returns: Run details (dict) and logs (list).
     """
-    if not access_token:
+    # If deployment is development, skip authentication
+    if DEPLOYMENT != 'development' and not access_token:
         raise HTTPException(
             status_code=401,
             detail="You need to be logged in",
