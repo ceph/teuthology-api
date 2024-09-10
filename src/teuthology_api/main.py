@@ -9,7 +9,7 @@ from teuthology_api.routes import suite, kill, login, logout
 
 load_dotenv()
 
-DEPLOYMENT = os.getenv("DEPLOYMENT")
+DEPLOYMENT = os.getenv("DEPLOYMENT", "production")
 SESSION_SECRET_KEY = os.getenv("SESSION_SECRET_KEY")
 PULPITO_URL = os.getenv("PULPITO_URL")
 PADDLES_URL = os.getenv("PADDLES_URL")
@@ -26,6 +26,7 @@ def read_root(request: Request):
     return {"root": "success", "session": request.session.get("user", None)}
 
 
+
 if DEPLOYMENT == "development":
     app.add_middleware(
         CORSMiddleware,
@@ -35,7 +36,12 @@ if DEPLOYMENT == "development":
         allow_headers=["*"],
     )
 
-app.add_middleware(SessionMiddleware, secret_key=SESSION_SECRET_KEY)
+
+if SESSION_SECRET_KEY:
+    app.add_middleware(SessionMiddleware, secret_key=SESSION_SECRET_KEY)
+else:
+    log.warning("SESSION_SECRET_KEY is not set. Sessions are disabled.")
+
 app.include_router(suite.router)
 app.include_router(kill.router)
 app.include_router(login.router)

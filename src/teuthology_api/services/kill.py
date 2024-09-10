@@ -15,13 +15,15 @@ def run(args, send_logs: bool, access_token: str, request: Request):
     """
     Kill running teuthology jobs.
     """
-    if not access_token:
+    deployment_env = os.getenv('DEPLOYMENT', 'production')
+    if deployment_env != 'development' and not access_token:
         log.error("access_token empty, user probably is not logged in.")
         raise HTTPException(
             status_code=401,
             detail="You need to be logged in",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
     username = get_username(request)
     run_name = args.get("--run")
     if run_name:
@@ -30,7 +32,8 @@ def run(args, send_logs: bool, access_token: str, request: Request):
     else:
         log.error("teuthology-kill is missing --run")
         raise HTTPException(status_code=400, detail="--run is a required argument")
-    # TODO if user has admin priviledge, then they can kill any run/job.
+
+    # TODO if user has admin privileges, then they can kill any run/job.
     if run_owner.lower() != username.lower():
         log.error(
             "%s doesn't have permission to kill a job scheduled by: %s",
@@ -40,6 +43,7 @@ def run(args, send_logs: bool, access_token: str, request: Request):
         raise HTTPException(
             status_code=401, detail="You don't have permission to kill this run/job"
         )
+
     try:
         kill_cmd = [f"{TEUTHOLOGY_PATH}/virtualenv/bin/teuthology-kill"]
         for flag, flag_value in args.items():

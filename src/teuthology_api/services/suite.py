@@ -1,6 +1,7 @@
 from datetime import datetime
 import logging
 import teuthology.suite
+import os
 
 from fastapi import HTTPException
 
@@ -14,7 +15,8 @@ def run(args, send_logs: bool, access_token: str):
     Schedule a suite.
     :returns: Run details (dict) and logs (list).
     """
-    if not access_token:
+    deployment_env = os.getenv('DEPLOYMENT', 'production')
+    if deployment_env != 'development' and not access_token:
         raise HTTPException(
             status_code=401,
             detail="You need to be logged in",
@@ -25,7 +27,7 @@ def run(args, send_logs: bool, access_token: str):
 
         logs = logs_run(teuthology.suite.main, args)
 
-        # get run details from paddles
+        
         run_name = make_run_name(
             {
                 "machine_type": args["--machine-type"],
