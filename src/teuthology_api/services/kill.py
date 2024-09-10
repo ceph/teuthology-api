@@ -15,7 +15,7 @@ def run(args, send_logs: bool, access_token: str, request: Request):
     """
     Kill running teuthology jobs.
     """
-    deployment_env = os.getenv('DEPLOYMENT', 'production')
+    deployment_env = os.getenv('DEPLOYMENT', 'development')
     if deployment_env != 'development' and not access_token:
         log.error("access_token empty, user probably is not logged in.")
         raise HTTPException(

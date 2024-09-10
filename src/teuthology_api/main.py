@@ -9,7 +9,7 @@ from teuthology_api.routes import suite, kill, login, logout
 
 load_dotenv()
 
-DEPLOYMENT = os.getenv("DEPLOYMENT", "production")
+DEPLOYMENT = os.getenv("DEPLOYMENT", "development")
 SESSION_SECRET_KEY = os.getenv("SESSION_SECRET_KEY")
 PULPITO_URL = os.getenv("PULPITO_URL")
 PADDLES_URL = os.getenv("PADDLES_URL")

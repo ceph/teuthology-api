@@ -1,7 +1,7 @@
 import logging
+import os
 
 from fastapi import APIRouter, HTTPException, Depends, Request
-
 from teuthology_api.services.suite import run
 from teuthology_api.services.helpers import get_token, get_username
 from teuthology_api.schemas.suite import SuiteArgs
@@ -14,14 +14,22 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
+DEPLOYMENT = os.getenv("DEPLOYMENT", "development") 
 
 @router.post("/", status_code=200)
 def create_run(
     request: Request,
     args: SuiteArgs,
-    access_token: str = Depends(get_token),
+    access_token: str = Depends(get_token) if DEPLOYMENT != "development" else None,
     logs: bool = False,
 ):
-    args = args.model_dump(by_alias=True)
-    args["--user"] = get_username(request)
-    return run(args, logs, access_token)
+    try:
+        args = args.model_dump(by_alias=True)
+        args["--user"] = get_username(request)
+        return run(args, logs, access_token)
+    except HTTPException as exc:
+        log.error(f"HTTP exception occurred: {exc.detail}")
+        raise
+    except Exception as exc:
+        log.error(f"Unexpected error occurred: {repr(exc)}")
+        raise HTTPException(status_code=500, detail="An unexpected error occurred.")

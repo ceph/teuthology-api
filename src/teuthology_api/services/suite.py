@@ -15,7 +15,7 @@ def run(args, send_logs: bool, access_token: str):
     Schedule a suite.
     :returns: Run details (dict) and logs (list).
     """
-    deployment_env = os.getenv('DEPLOYMENT', 'production')
+    deployment_env = os.getenv('DEPLOYMENT', 'development')
     if deployment_env != 'development' and not access_token:
         raise HTTPException(
             status_code=401,

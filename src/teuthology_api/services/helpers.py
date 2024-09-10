@@ -12,7 +12,7 @@ load_dotenv()
 
 PADDLES_URL = os.getenv("PADDLES_URL")
 ARCHIVE_DIR = os.getenv("ARCHIVE_DIR")
-DEPLOYMENT = os.getenv("DEPLOYMENT", "production")  
+DEPLOYMENT = os.getenv("DEPLOYMENT", "development")  
 
 log = logging.getLogger(__name__)
 
