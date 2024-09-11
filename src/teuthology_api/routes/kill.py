@@ -6,6 +6,7 @@ from requests.exceptions import HTTPError
 from teuthology_api.services.kill import run
 from teuthology_api.services.helpers import get_token
 from teuthology_api.schemas.kill import KillArgs
+from pydantic import BaseModel
 
 log = logging.getLogger(__name__)
 
@@ -13,6 +14,18 @@ router = APIRouter(
     prefix="/kill",
     tags=["kill"],
 )
+
+
+class Item(BaseModel):
+    name: str
+    description: str | None = None
+    price: float
+    tax: float | None = None
+
+
+@router.post("/test/")
+async def test_run(item: Item):
+    return item
 
 
 @router.post("/", status_code=200)
