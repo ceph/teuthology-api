@@ -35,7 +35,10 @@ if DEPLOYMENT == "development":
         allow_headers=["*"],
     )
 
-app.add_middleware(SessionMiddleware, secret_key=SESSION_SECRET_KEY)
+if SESSION_SECRET_KEY:
+    app.add_middleware(SessionMiddleware, secret_key=SESSION_SECRET_KEY)
+else:
+    log.warning("SESSION_SECRET_KEY is not set. Sessions are disabled.")
 app.include_router(suite.router)
 app.include_router(kill.router)
 app.include_router(login.router)

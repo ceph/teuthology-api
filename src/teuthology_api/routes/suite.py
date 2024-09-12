@@ -1,5 +1,4 @@
 import logging
-
 from fastapi import APIRouter, HTTPException, Depends, Request
 
 from teuthology_api.services.suite import run
@@ -15,6 +14,7 @@ router = APIRouter(
 )
 
 
+
 @router.post("/", status_code=200)
 def create_run(
     request: Request,
@@ -22,6 +22,13 @@ def create_run(
     access_token: str = Depends(get_token),
     logs: bool = False,
 ):
-    args = args.model_dump(by_alias=True)
-    args["--user"] = get_username(request)
-    return run(args, logs, access_token)
+    try:
+        args = args.model_dump(by_alias=True)
+        args["--user"] = get_username(request)
+        return run(args, logs, access_token)
+    except HTTPException as exc:
+        log.error(f"HTTP exception occurred: {exc.detail}")
+        raise
+    except Exception as exc:
+        log.error(f"Unexpected error occurred: {repr(exc)}")
+        raise HTTPException(status_code=500, detail="An unexpected error occurred.")

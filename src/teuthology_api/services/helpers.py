@@ -16,12 +16,13 @@ load_dotenv()
 PADDLES_URL = os.getenv("PADDLES_URL")
 ARCHIVE_DIR = os.getenv("ARCHIVE_DIR")
 
+DEPLOYMENT = os.getenv("DEPLOYMENT")
 log = logging.getLogger(__name__)
 
 
 def logs_run(func, args):
     """
-    Run the command function in a seperate process (to isolate logs),
+    Run the command function in a separate process (to isolate logs),
     and return logs printed during the execution of the function.
     """
     _id = str(uuid.uuid4())
@@ -72,6 +73,8 @@ def get_username(request: Request):
     """
     Get username from request.session
     """
+    if DEPLOYMENT == "development":
+        return "dev_user"
     username = request.session.get("user", {}).get("username")
     if username:
         return username
@@ -87,6 +90,8 @@ def get_token(request: Request):
     """
     Get access token from request.session
     """
+    if DEPLOYMENT == "development":
+        return {"access_token": "dev_token", "token_type": "bearer"}
     token = request.session.get("user", {}).get("access_token")
     if token:
         return {"access_token": token, "token_type": "bearer"}
