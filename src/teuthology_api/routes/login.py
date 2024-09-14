@@ -82,6 +82,7 @@ async def handle_callback(code: str, request: Request):
         data = {
             "id": response_org_dic.get("user", {}).get("id"),
             "username": response_org_dic.get("user", {}).get("login"),
+            "avatar_url": response_org_dic.get("user", {}).get("avatar_url"),
             "state": response_org_dic.get("state"),
             "role": response_org_dic.get("role"),
             "access_token": token,
