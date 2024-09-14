@@ -85,6 +85,7 @@ async def handle_callback(code: str, request: Request):
             "state": response_org_dic.get("state"),
             "role": response_org_dic.get("role"),
             "access_token": token,
+            "avatar_url": response_org_dic.get("user", {}).get("avatar_url"),
         }
         request.session["user"] = data
         isUserAdmin = await isAdmin(data["username"], data["access_token"])
@@ -98,5 +99,5 @@ async def handle_callback(code: str, request: Request):
         [f"{str(key)}={str(value)}" for key, value in cookie_data.items()]
     )
     response = RedirectResponse(PULPITO_URL)
-    response.set_cookie(key="GH_USER", value=cookie)
+    response.set_cookie(key="GH_USER", value=cookie, samesite="none")
     return response
