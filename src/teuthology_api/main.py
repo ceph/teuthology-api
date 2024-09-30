@@ -29,7 +29,7 @@ def read_root(request: Request):
 if DEPLOYMENT == "development":
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=[PULPITO_URL, PADDLES_URL],
+        allow_origins=[PULPITO_URL, PADDLES_URL, "http://localhost:3000"],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
