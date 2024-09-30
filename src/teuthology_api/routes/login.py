@@ -3,6 +3,7 @@ import os
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import RedirectResponse
 from dotenv import load_dotenv
+from urllib.parse import quote, unquote, parse_qs
 import httpx
 
 load_dotenv()
@@ -23,16 +24,19 @@ router = APIRouter(
 
 
 @router.get("/", status_code=200)
-async def github_login():
+async def github_login(request: Request):
     """
     GET route for /login, (If first time) will redirect to github login page
     where you should authorize the app to gain access.
     """
+    relativeUrl = unquote(request.url.query).removeprefix("dest=/")
+    destinationUrl = f"{request.headers['referer']}{relativeUrl}"
     if not GH_AUTHORIZATION_BASE_URL or not GH_CLIENT_ID:
         return HTTPException(status_code=500, detail="Environment secrets are missing.")
     scope = "read:org"
     return RedirectResponse(
-        f"{GH_AUTHORIZATION_BASE_URL}?client_id={GH_CLIENT_ID}&scope={scope}",
+        # FIXME make state a b64-encoded object with an added random string, to pretect against cross-site attacks
+        f"{GH_AUTHORIZATION_BASE_URL}?client_id={GH_CLIENT_ID}&scope={scope}&state={quote(destinationUrl)}",
         status_code=302,
     )
 
@@ -49,11 +53,12 @@ async def handle_callback(code: str, request: Request):
         "code": code,
     }
     headers = {"Accept": "application/json"}
+    # log.info(f"cb url={request.url} headers={request.headers}")
     async with httpx.AsyncClient() as client:
         response_token = await client.post(
             url=GH_TOKEN_URL, params=params, headers=headers
         )
-        log.info(response_token.json())
+        # log.info(response_token.json())
         response_token_dic = dict(response_token.json())
         token = response_token_dic.get("access_token")
         if response_token_dic.get("error") or not token:
@@ -63,7 +68,7 @@ async def handle_callback(code: str, request: Request):
             )
         headers = {"Authorization": "token " + token}
         response_org = await client.get(url=GH_FETCH_MEMBERSHIP_URL, headers=headers)
-        log.info(response_org.json())
+        # log.info(response_org.json())
         if response_org.status_code == 404:
             log.error("User is not part of the Ceph Organization")
             raise HTTPException(
@@ -92,6 +97,9 @@ async def handle_callback(code: str, request: Request):
     cookie = "; ".join(
         [f"{str(key)}={str(value)}" for key, value in cookie_data.items()]
     )
-    response = RedirectResponse(PULPITO_URL)
+    state_value = parse_qs(request.url.query).get("state")
+    url = state_value[0] if state_value else PULPITO_URL
+    log.info(f"redirecting to {url}")
+    response = RedirectResponse(url)
     response.set_cookie(key="GH_USER", value=cookie)
     return response
