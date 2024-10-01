@@ -21,7 +21,7 @@ def logout(request: Request):
     user = request.session.get("user")
     if user:
         request.session.pop("user", None)
-        return RedirectResponse(PULPITO_URL)
+        return RedirectResponse(request.url)
     log.warning("No session found, probably already logged out.")
     raise HTTPException(
         status_code=204, detail="No session found, probably already logged out."
