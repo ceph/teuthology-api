@@ -13,6 +13,7 @@ DEPLOYMENT = os.getenv("DEPLOYMENT")
 SESSION_SECRET_KEY = os.getenv("SESSION_SECRET_KEY")
 PULPITO_URL = os.getenv("PULPITO_URL")
 PADDLES_URL = os.getenv("PADDLES_URL")
+CORS_ORIGINS = os.getenv("CORS_ORIGINS")
 
 log = logging.getLogger(__name__)
 app = FastAPI()
@@ -27,9 +28,12 @@ def read_root(request: Request):
 
 
 if DEPLOYMENT == "development":
+    allow_origins = [PULPITO_URL, PADDLES_URL]
+    if CORS_ORIGINS:
+        allow_origins.extend(CORS_ORIGINS.split(","))
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=[PULPITO_URL, PADDLES_URL, "http://localhost:3000"],
+        allow_origins=allow_origins,
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
