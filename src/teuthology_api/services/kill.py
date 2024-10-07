@@ -38,7 +38,7 @@ async def run(args, send_logs: bool, token: dict, request: Request):
     if (run_owner.lower() != username.lower()) and (
         run_owner.lower() != f"scheduled_{username.lower()}@teuthology"
     ):
-        isUserAdmin = await isAdmin(username, token["access_token"])
+        isUserAdmin = await isAdmin(username, token.get("access_token"))
         if not isUserAdmin:
             log.error(
                 "%s doesn't have permission to kill a job scheduled by: %s",

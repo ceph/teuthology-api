@@ -107,6 +107,12 @@ async def isAdmin(username, token):
     if not (GH_ORG_TEAM_URL and ADMIN_TEAM):
         log.error("GH_ORG_TEAM_URL or ADMIN_TEAM is not set in .env")
         return False
+    if not (token and username):
+        raise HTTPException(
+            status_code=401,
+            detail="You are probably not logged in (username or token missing)",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     TEAM_MEMBER_URL = f"{GH_ORG_TEAM_URL}/{ADMIN_TEAM}/memberships/{username}"
     async with httpx.AsyncClient() as client:
         headers = {
