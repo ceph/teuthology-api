@@ -3,7 +3,7 @@ from fastapi import HTTPException
 import pytest
 from teuthology_api.main import app
 from unittest.mock import patch
-from teuthology_api.services.helpers import Request, get_token, get_username
+from teuthology_api.services.helpers import get_token, get_username
 
 client = TestClient(app)
 

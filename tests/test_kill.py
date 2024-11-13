@@ -39,12 +39,12 @@ def test_kill_run_success(m_get_username, m_get_run_details, m_popen):
     mock_process = m_popen.return_value
     mock_process.communicate.return_value = ("logs", "")
     mock_process.wait.return_value = 0
-    response = client.post("/kill", data=json.dumps(mock_kill_args))
+    response = client.post("/kill", content=json.dumps(mock_kill_args))
     assert response.status_code == 200
     assert response.json() == {"kill": "success"}
 
 
 def test_kill_run_fail():
-    response = client.post("/kill", data=json.dumps(mock_kill_args))
+    response = client.post("/kill", content=json.dumps(mock_kill_args))
     assert response.status_code == 401
     assert response.json() == {"detail": "You need to be logged in"}
