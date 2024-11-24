@@ -7,6 +7,8 @@ PORT=${TEUTHOLOGY_API_SERVER_PORT:-"8082"}
 VENV=${VENV:-"venv"}
 
 source ${VENV}/bin/activate
+alembic -x verbose=1 upgrade head
+
 cd /teuthology_api/src/
 
 if [ "$DEPLOYMENT" = "development" ]; then

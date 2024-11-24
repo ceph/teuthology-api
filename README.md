@@ -16,6 +16,8 @@ A REST API to execute [teuthology commands](https://docs.ceph.com/projects/teuth
 
    3.3. Save `CLIENT_ID` and `CLIENT_SECRET` from your Github OAuth App to your local `.env` file as `GH_CLIENT_ID` and `GH_CLIENT_SECRET`.
 
+   3.4. Add `TEUTHOLOGY_API_SQLITE_URI` using the format `sqlite:////<db_path>`
+
 4. Add the following to [teuthology's docker-compose](https://github.com/ceph/teuthology/blob/main/docs/docker-compose/docker-compose.yml) services.
 
     ```
@@ -65,7 +67,9 @@ A REST API to execute [teuthology commands](https://docs.ceph.com/projects/teuth
 
 6. Build the project: `pip install -e .`
 
-7. Start the server: `gunicorn -c gunicorn_config.py teuthology_api.main:app`
+7. Run `alembic upgrade head` command to run database migrations
+
+8. Start the server: `gunicorn -c gunicorn_config.py teuthology_api.main:app`
 
 ## Documentation
 
@@ -108,6 +112,4 @@ Example
         "--owner": "example"
      }'
 
-Note: "--owner" in data body should be same as your github username (case sensitive). Otherwise, you wouldn't have permission to kill jobs/run.
-
-xxx
+> Note: `"--owner"` in data body should be same as your github username (case sensitive). Otherwise, you wouldn't have permission to kill jobs/run.
