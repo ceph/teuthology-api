@@ -35,7 +35,7 @@ mock_suite_args = {
 def test_suite_run_success(m_get_run_details, m_get_username, m_logs_run):
     m_get_username.return_value = "user1"
     m_get_run_details.return_value = {"id": "7451978", "user": "user1"}
-    response = client.post("/suite", data=json.dumps(mock_suite_args))
+    response = client.post("/suite", content=json.dumps(mock_suite_args))
     assert response.status_code == 200
     assert response.json() == {"run": {"id": "7451978", "user": "user1"}}
 
