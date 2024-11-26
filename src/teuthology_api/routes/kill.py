@@ -32,7 +32,8 @@ async def create_run(
     try:
         args = args.model_dump(by_alias=True, exclude_unset=True)
         return await run(args, logs, token, request)
-    except HTTPException:
+    except HTTPException as http_exp:
+        log.error(http_exp)
         raise
     except HTTPError as http_err:
         log.error(http_err)
