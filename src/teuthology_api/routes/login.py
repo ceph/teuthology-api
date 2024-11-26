@@ -5,6 +5,8 @@ from fastapi.responses import RedirectResponse
 from dotenv import load_dotenv
 import httpx
 
+from teuthology_api.services.helpers import isAdmin
+
 load_dotenv()
 
 GH_CLIENT_ID = os.getenv("GH_CLIENT_ID")
@@ -80,14 +82,18 @@ async def handle_callback(code: str, request: Request):
         data = {
             "id": response_org_dic.get("user", {}).get("id"),
             "username": response_org_dic.get("user", {}).get("login"),
+            "avatar_url": response_org_dic.get("user", {}).get("avatar_url"),
             "state": response_org_dic.get("state"),
             "role": response_org_dic.get("role"),
             "access_token": token,
         }
         request.session["user"] = data
+        isUserAdmin = await isAdmin(data["username"], data["access_token"])
+        data["isUserAdmin"] = isUserAdmin
     cookie_data = {
         "username": data["username"],
         "avatar_url": response_org_dic.get("user", {}).get("avatar_url"),
+        "isUserAdmin": isUserAdmin,
     }
     cookie = "; ".join(
         [f"{str(key)}={str(value)}" for key, value in cookie_data.items()]

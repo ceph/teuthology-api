@@ -1,6 +1,7 @@
 import logging
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Request, HTTPException
+from requests.exceptions import HTTPError
 
 from teuthology_api.services.kill import run
 from teuthology_api.services.helpers import get_token
@@ -15,11 +16,11 @@ router = APIRouter(
 
 
 @router.post("/", status_code=200)
-def create_run(
+async def create_run(
     request: Request,
     args: KillArgs,
     logs: bool = False,
-    access_token: str = Depends(get_token),
+    token: str = Depends(get_token),
 ):
     """
     POST route for killing a run or a job.
@@ -28,5 +29,17 @@ def create_run(
     or else it will SyntaxError: non-dafault
     argument follows default argument error.
     """
-    args = args.model_dump(by_alias=True, exclude_unset=True)
-    return run(args, logs, access_token, request)
+    try:
+        args = args.model_dump(by_alias=True, exclude_unset=True)
+        return await run(args, logs, token, request)
+    except HTTPException as http_exp:
+        log.error(http_exp)
+        raise
+    except HTTPError as http_err:
+        log.error(http_err)
+        raise HTTPException(
+            status_code=http_err.response.status_code, detail=str(http_err)
+        ) from http_err
+    except Exception as err:
+        log.error(err)
+        raise HTTPException(status_code=500, detail=str(err)) from err
