@@ -1,6 +1,5 @@
 from datetime import datetime
 import logging
-import teuthology.suite
 
 from fastapi import HTTPException
 
@@ -9,12 +8,12 @@ from teuthology_api.services.helpers import logs_run, get_run_details
 log = logging.getLogger(__name__)
 
 
-def run(args, send_logs: bool, access_token: str):
+def run(args, send_logs: bool, token_dict):
     """
     Schedule a suite.
     :returns: Run details (dict) and logs (list).
     """
-    if not access_token:
+    if not token_dict:
         raise HTTPException(
             status_code=401,
             detail="You need to be logged in",
@@ -23,7 +22,7 @@ def run(args, send_logs: bool, access_token: str):
     try:
         args["--timestamp"] = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
 
-        logs = logs_run(teuthology.suite.main, args)
+        logs = logs_run("teuthology.suite.main", args)
 
         # get run details from paddles
         run_name = make_run_name(

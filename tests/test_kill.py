@@ -53,7 +53,10 @@ def test_kill_run_success(m_get_username, m_get_run_details, m_popen, m_isAdmin)
 def test_kill_run_fail():
     response = client.post("/kill", data=json.dumps(mock_kill_args))
     assert response.status_code == 401
-    assert response.json() == {"detail": "You need to be logged in"}
+    assert response.json()["detail"] == (
+        "You need to be logged in. Use X-Access-Token header, "
+        "Authorization: Bearer header, or browser login."
+    )
 
 
 @patch("teuthology_api.services.kill.isAdmin")

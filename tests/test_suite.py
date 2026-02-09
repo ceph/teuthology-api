@@ -28,14 +28,18 @@ mock_suite_args = {
     "--machine-type": "testnode",
 }
 
-# suite
+# suite (route uses resolve_access_token, not get_username)
 @patch("teuthology_api.services.suite.logs_run")
-@patch("teuthology_api.routes.suite.get_username")
+@patch("teuthology_api.routes.suite.resolve_access_token")
 @patch("teuthology_api.services.suite.get_run_details")
-def test_suite_run_success(m_get_run_details, m_get_username, m_logs_run):
-    m_get_username.return_value = "user1"
+def test_suite_run_success(m_get_run_details, m_resolve_access_token, m_logs_run):
+    async def _resolve(*args, **kwargs):
+        return ("user1", {"access_token": "token_123", "token_type": "bearer"})
+
+    m_resolve_access_token.side_effect = _resolve
+    m_logs_run.return_value = []
     m_get_run_details.return_value = {"id": "7451978", "user": "user1"}
-    response = client.post("/suite", data=json.dumps(mock_suite_args))
+    response = client.post("/suite/", data=json.dumps(mock_suite_args))
     assert response.status_code == 200
     assert response.json() == {"run": {"id": "7451978", "user": "user1"}}
 

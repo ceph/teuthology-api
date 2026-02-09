@@ -24,7 +24,7 @@ async def run(args, send_logs: bool, token: dict, request: Request):
             detail="You need to be logged in",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    username = get_username(request)
+    username = await get_username(request)
     run_name = args.get("--run", "")
     if run_name:
         run_details = get_run_details(run_name)

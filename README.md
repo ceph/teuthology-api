@@ -71,9 +71,33 @@ A REST API to execute [teuthology commands](https://docs.ceph.com/projects/teuth
 
 The documentation can be accessed at http://localhost:8082/docs after running the application.
 
-Once you have teuthology-api running, authenticate by visiting `http://localhost:8082/login` through browser and follow the github authentication steps (this stores the auth token in browser cookies).
+Once you have teuthology-api running, authenticate by visiting `http://localhost:8082/login` through browser and follow the github authentication steps (this stores the auth token in browser cookies). For headless/CLI/CI use, see **Device code API** below.
 
 > Note: To test below endpoints locally, recommended flow is to login through browser (as mentioned above) and then send requests (and receive response) through interactive docs at `/docs`.
+
+### Device code API (headless / CLI / CI)
+
+For scripts, CI, or environments without a browser, use the GitHub device flow to obtain an access token.
+
+1. **Start device flow** — get a user code and verification URL:
+
+   ```bash
+   curl -X POST http://localhost:8082/login/device/code
+   ```
+
+   Response example: `{"device_code": "...", "user_code": "ABCD-1234", "verification_uri": "https://github.com/login/device", "expires_in": 900, "interval": 5}`.
+
+2. **Have the user authorize** — open `verification_uri` in a browser, enter `user_code`, and approve access.
+
+3. **Poll for token** — call the token endpoint with the `device_code` from step 1 (query param `device_code`):
+
+   ```bash
+   curl -X POST "http://localhost:8082/login/device/token?device_code=YOUR_DEVICE_CODE"
+   ```
+
+   - **202** = authorization pending (poll again after `interval` seconds).
+   - **200** = success; response includes `access_token`. Use it in `X-Access-Token` or `Authorization: Bearer <access_token>` for other API calls.
+   - **403** = user not in Ceph org or access denied. **410** = code expired.
 
 ### Route `/`
 
@@ -109,5 +133,3 @@ Example
      }'
 
 Note: "--owner" in data body should be same as your github username (case sensitive). Otherwise, you wouldn't have permission to kill jobs/run.
-
-xxx
